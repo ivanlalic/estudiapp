@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>¡Hora de Estudiar!</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#D63384">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Estudiapp">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -232,6 +236,7 @@ function nextExercise(){currentIdx++;if(currentIdx>=currentExercises.length){con
 function showCelebration(){const total=currentExercises.length,pct=correctCount/total;const stars=pct>=0.9?3:pct>=0.6?2:1;const emojis=['🎊','🏆','🌟'];const titles=['¡Muy bien!','¡Excelente!','¡Sos una campeona!'];const subs=['Seguí practicando, vas a mejorar','¡Estás aprendiendo muy bien!','¡Perfecto! No erraste casi nada'];document.getElementById('cel-emoji').textContent=emojis[stars-1];document.getElementById('cel-title').textContent=titles[stars-1];document.getElementById('cel-stars').textContent=Array(stars).fill('⭐').join('')+Array(3-stars).fill('☆').join('');document.getElementById('cel-score').textContent=correctCount+' de '+total+' respuestas correctas';document.getElementById('cel-sub').textContent=subs[stars-1]+', '+userName+'!';const history=scores[currentSubject];const histEl=document.getElementById('cel-history');if(history.length>1){const last5=history.slice(-5).reverse();histEl.innerHTML='<div style="margin:16px auto 0;max-width:300px;background:white;border-radius:16px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);"><div style="font-weight:900;font-size:14px;color:#555;margin-bottom:8px;">📊 Tu historial</div>'+last5.map(h=>{const p=h.score/h.total;const s=p>=0.9?'⭐⭐⭐':p>=0.6?'⭐⭐':'⭐';return'<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F0F0F0;font-size:14px;"><span style="color:#999">'+h.date+'</span><span style="font-weight:700;color:#333">'+h.score+'/'+h.total+'</span><span>'+s+'</span></div>';}).join('')+'</div>';}else{histEl.innerHTML='';}show('screen-celebration');}
 
 loadData();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
 </script>
 </body>
 </html>
