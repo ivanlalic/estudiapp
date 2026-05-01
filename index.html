@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>¡Hora de Estudiar!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow-x: hidden; }
+body { font-family: 'Nunito', sans-serif; background: #FFF9F0; }
+#app { min-height: 100vh; }
+.screen { display: none; padding: 24px 20px; min-height: 100vh; flex-direction: column; align-items: center; }
+.screen.active { display: flex; }
+.welcome-bg { background: linear-gradient(160deg, #FFE0F0 0%, #FFF0CC 50%, #E0F4FF 100%); }
+.welcome-icon { font-size: 80px; margin: 30px 0 10px; }
+.welcome-title { font-size: 36px; font-weight: 900; color: #D63384; text-align: center; }
+.welcome-sub { font-size: 17px; color: #888; margin: 10px 0 28px; text-align: center; }
+.name-input { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 700; border: 3px solid #FFB3D1; border-radius: 20px; padding: 14px 24px; width: 100%; max-width: 320px; text-align: center; background: white; color: #333; outline: none; }
+.name-input:focus { border-color: #D63384; }
+.btn-start { margin-top: 24px; background: #D63384; color: white; border: none; border-radius: 28px; padding: 18px 48px; font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 #9B2563; transition: transform 0.1s; opacity: 0.6; }
+.btn-start:active { transform: translateY(4px); box-shadow: 0 1px 0 #9B2563; }
+.menu-bg { background: linear-gradient(160deg, #E8F4FF 0%, #FFF0FF 100%); }
+.menu-greeting { font-size: 26px; font-weight: 900; color: #5A3E8C; margin-bottom: 6px; text-align: center; }
+.menu-sub { font-size: 15px; color: #999; margin-bottom: 24px; }
+.subject-card { width: 100%; max-width: 380px; border-radius: 28px; padding: 22px 28px; margin: 10px 0; cursor: pointer; display: flex; align-items: center; gap: 18px; border: none; font-family: 'Nunito', sans-serif; transition: transform 0.15s; }
+.subject-card:active { transform: translateY(3px); }
+.subject-card.math { background: #FFF0CC; box-shadow: 0 5px 0 #E8C96A; }
+.subject-card.english { background: #D6EEFF; box-shadow: 0 5px 0 #7BB8E8; }
+.subject-card.science { background: #D6FFE8; box-shadow: 0 5px 0 #5EC68A; }
+.subject-icon { font-size: 52px; }
+.subject-info { text-align: left; }
+.subject-name { font-size: 22px; font-weight: 900; color: #333; }
+.subject-desc { font-size: 14px; color: #777; margin-top: 2px; }
+.stars-row { display: flex; gap: 4px; margin-top: 6px; align-items: center; }
+.ex-bg { background: #FFF9F0; }
+.ex-header { width: 100%; max-width: 420px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.btn-back { background: white; border: 2px solid #EEE; border-radius: 50%; width: 46px; height: 46px; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ex-subject-badge { font-size: 14px; font-weight: 700; padding: 7px 16px; border-radius: 20px; }
+.badge-math { background: #FFF0CC; color: #B8860B; }
+.badge-english { background: #D6EEFF; color: #1A6FA8; }
+.badge-science { background: #D6FFE8; color: #1A7A47; }
+.ex-counter { margin-left: auto; font-size: 15px; font-weight: 700; color: #999; }
+.progress-bar { width: 100%; max-width: 420px; height: 12px; background: #EEE; border-radius: 10px; margin-bottom: 22px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+.fill-math { background: linear-gradient(90deg, #FFD700, #FFA500); }
+.fill-english { background: linear-gradient(90deg, #6DB8FF, #3A8FDE); }
+.fill-science { background: linear-gradient(90deg, #5EE89A, #2EBD6B); }
+.question-card { background: white; border-radius: 28px; padding: 28px 24px; width: 100%; max-width: 420px; box-shadow: 0 3px 16px rgba(0,0,0,0.08); margin-bottom: 20px; min-height: 130px; display: flex; align-items: center; justify-content: center; }
+.question-inner { text-align: center; }
+.question-emoji { font-size: 56px; margin-bottom: 10px; }
+.question-text { font-size: 24px; font-weight: 700; color: #333; line-height: 1.4; }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 420px; margin-bottom: 18px; }
+.option-btn { background: white; border: 3px solid #E8E8E8; border-radius: 20px; padding: 16px 12px; font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 700; color: #444; cursor: pointer; transition: all 0.15s; min-height: 64px; }
+.option-btn:active { transform: scale(0.97); }
+.option-btn.correct { background: #D6FFE8; border-color: #2EBD6B; color: #1A7A47; }
+.option-btn.wrong { background: #FFE0E0; border-color: #E55; color: #C00; }
+.num-input-row { display: flex; gap: 12px; width: 100%; max-width: 420px; margin-bottom: 18px; align-items: center; }
+.num-input { font-family: 'Nunito', sans-serif; font-size: 36px; font-weight: 900; border: 3px solid #E8E8E8; border-radius: 20px; padding: 14px; width: 130px; text-align: center; color: #333; outline: none; }
+.num-input:focus { border-color: #FFB800; }
+.btn-check { background: #FFB800; border: none; border-radius: 20px; padding: 14px 20px; font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 900; color: white; cursor: pointer; box-shadow: 0 4px 0 #CC8800; flex: 1; }
+.btn-check:active { transform: translateY(3px); box-shadow: 0 1px 0 #CC8800; }
+.match-container { width: 100%; max-width: 420px; position: relative; margin-bottom: 18px; }
+.match-cols { display: flex; justify-content: space-between; }
+.match-col { display: flex; flex-direction: column; gap: 12px; width: 44%; }
+.match-item { padding: 14px 10px; border-radius: 18px; font-size: 17px; font-weight: 700; text-align: center; cursor: pointer; border: 3px solid transparent; transition: all 0.15s; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); color: #333; min-height: 54px; display: flex; align-items: center; justify-content: center; }
+.match-item.selected { border-color: #6DB8FF; background: #EAF5FF; }
+.match-item.matched-correct { border-color: #2EBD6B; background: #D6FFE8; cursor: default; }
+.match-svg { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; }
+.feedback-box { width: 100%; max-width: 420px; border-radius: 20px; padding: 18px 20px; margin-bottom: 14px; font-size: 16px; line-height: 1.5; font-weight: 700; }
+.feedback-correct { background: #D6FFE8; color: #1A7A47; }
+.feedback-wrong { background: #FFE0E0; color: #C00; }
+.feedback-help { background: #FFF3CD; color: #856404; }
+.btn-help { background: white; border: 3px solid #FFB800; border-radius: 22px; padding: 14px 28px; font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900; color: #B8860B; cursor: pointer; margin-bottom: 12px; }
+.btn-next { background: #5A3E8C; border: none; border-radius: 22px; padding: 16px 40px; font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 900; color: white; cursor: pointer; box-shadow: 0 5px 0 #3A2570; }
+.btn-next:active { transform: translateY(4px); box-shadow: 0 1px 0 #3A2570; }
+.celebration-bg { background: linear-gradient(160deg, #FFE0F0 0%, #FFF0CC 50%, #E0F4FF 100%); }
+.cel-emoji { font-size: 100px; text-align: center; margin: 24px 0; }
+.cel-title { font-size: 32px; font-weight: 900; color: #D63384; text-align: center; }
+.cel-stars { font-size: 48px; text-align: center; letter-spacing: 6px; margin: 12px 0; }
+.cel-score { font-size: 20px; color: #555; font-weight: 700; text-align: center; margin-bottom: 8px; }
+.cel-sub { font-size: 17px; color: #666; text-align: center; margin-bottom: 28px; }
+.btn-again { background: #D63384; color: white; border: none; border-radius: 28px; padding: 18px 40px; font-family: 'Nunito', sans-serif; font-size: 21px; font-weight: 900; cursor: pointer; margin: 8px auto; box-shadow: 0 5px 0 #9B2563; display: block; width: 100%; max-width: 320px; }
+.btn-menu-home { background: white; color: #D63384; border: 3px solid #D63384; border-radius: 28px; padding: 16px 36px; font-family: 'Nunito', sans-serif; font-size: 19px; font-weight: 900; cursor: pointer; margin: 8px auto; display: block; width: 100%; max-width: 320px; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen-welcome" class="screen welcome-bg active">
+    <div class="welcome-icon">📚</div>
+    <div class="welcome-title">¡Hora de estudiar!</div>
+    <div class="welcome-sub">Escribí tu nombre para empezar</div>
+    <input class="name-input" id="name-input" type="text" placeholder="Tu nombre..." maxlength="20" autocomplete="off" />
+    <button class="btn-start" id="btn-start" onclick="startApp()">¡Empezar! 🚀</button>
+    <div style="margin-top:40px;font-size:14px;color:#BBB;text-align:center;">Hecho con 💜 por papá</div>
+  </div>
+
+  <div id="screen-menu" class="screen menu-bg">
+    <div style="font-size:60px;margin:10px 0;">🌟</div>
+    <div class="menu-greeting" id="greeting-text">¡Hola!</div>
+    <div class="menu-sub">¿Qué materia practicamos hoy?</div>
+    <button class="subject-card math" onclick="startSubject('math')">
+      <span class="subject-icon">🔢</span>
+      <div class="subject-info">
+        <div class="subject-name">Matemática</div>
+        <div class="subject-desc">Sumas, restas, doble y mitad</div>
+        <div class="stars-row" id="stars-math"></div>
+      </div>
+    </button>
+    <button class="subject-card english" onclick="startSubject('english')">
+      <span class="subject-icon">🇬🇧</span>
+      <div class="subject-info">
+        <div class="subject-name">Inglés</div>
+        <div class="subject-desc">Vocabulario y unir con flechas</div>
+        <div class="stars-row" id="stars-english"></div>
+      </div>
+    </button>
+    <button class="subject-card science" onclick="startSubject('science')">
+      <span class="subject-icon">🌿</span>
+      <div class="subject-info">
+        <div class="subject-name">Cs. Naturales</div>
+        <div class="subject-desc">Animales, plantas, cuerpo humano</div>
+        <div class="stars-row" id="stars-science"></div>
+      </div>
+    </button>
+  </div>
+
+  <div id="screen-exercise" class="screen ex-bg">
+    <div class="ex-header">
+      <button class="btn-back" onclick="goMenu()">←</button>
+      <div class="ex-subject-badge" id="ex-badge">Materia</div>
+      <div class="ex-counter" id="ex-counter">1/10</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="question-card">
+      <div class="question-inner">
+        <div class="question-emoji" id="q-emoji"></div>
+        <div class="question-text" id="q-text"></div>
+      </div>
+    </div>
+    <div id="answer-area"></div>
+    <div id="feedback-area"></div>
+    <div id="btn-area" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:420px;"></div>
+  </div>
+
+  <div id="screen-celebration" class="screen celebration-bg">
+    <div class="cel-emoji" id="cel-emoji">🎉</div>
+    <div class="cel-title" id="cel-title">¡Felicitaciones!</div>
+    <div class="cel-stars" id="cel-stars">⭐⭐⭐</div>
+    <div class="cel-score" id="cel-score"></div>
+    <div class="cel-sub" id="cel-sub"></div>
+    <button class="btn-again" onclick="startSubject(currentSubject)">Jugar de nuevo 🔄</button>
+    <button class="btn-menu-home" onclick="goMenu()">Elegir otra materia</button>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  math: [
+    {type:'number',emoji:'🍎',q:'24 + 15 = ?',answer:39,help:'Sumá las unidades: 4+5=9. Sumá las decenas: 2+1=3. Resultado: 39.'},
+    {type:'number',emoji:'🌟',q:'37 + 21 = ?',answer:58,help:'Unidades: 7+1=8. Decenas: 3+2=5. Resultado: 58.'},
+    {type:'number',emoji:'🍰',q:'45 - 12 = ?',answer:33,help:'Unidades: 5-2=3. Decenas: 4-1=3. Resultado: 33.'},
+    {type:'number',emoji:'🐣',q:'60 - 24 = ?',answer:36,help:'60 menos 20 = 40, y 40 menos 4 = 36.'},
+    {type:'choice',emoji:'🐝',q:'¿El doble de 8?',options:['12','16','14','18'],answer:'16',help:'El doble es sumarlo dos veces: 8+8=16.'},
+    {type:'choice',emoji:'🌈',q:'¿La mitad de 20?',options:['8','12','10','5'],answer:'10',help:'La mitad es dividir en dos partes iguales: 20÷2=10.'},
+    {type:'number',emoji:'🚗',q:'13 + 28 = ?',answer:41,help:'3+8=11, escribo 1 y llevo 1. 1+2+1=4. Resultado: 41.'},
+    {type:'choice',emoji:'🎈',q:'¿El doble de 15?',options:['25','30','20','35'],answer:'30',help:'15+15=30.'},
+    {type:'choice',emoji:'🦋',q:'¿La mitad de 36?',options:['16','20','18','14'],answer:'18',help:'18+18=36. ¡La mitad de 36 es 18!'},
+    {type:'number',emoji:'⭐',q:'52 - 19 = ?',answer:33,help:'52-20=32, pero restamos 19 (uno menos), entonces 32+1=33.'},
+  ],
+  english: [
+    {type:'match',emoji:'🎨',q:'Une los colores con su nombre en inglés',left:['Rojo','Azul','Verde','Amarillo'],right:['Green','Yellow','Red','Blue'],pairs:{0:2,1:3,2:0,3:1},help:'Rojo=Red, Azul=Blue, Verde=Green, Amarillo=Yellow.'},
+    {type:'match',emoji:'🐾',q:'Une los animales con su nombre en inglés',left:['Perro','Gato','Pájaro','Pez'],right:['Bird','Fish','Dog','Cat'],pairs:{0:2,1:3,2:0,3:1},help:'Perro=Dog, Gato=Cat, Pájaro=Bird, Pez=Fish.'},
+    {type:'match',emoji:'👨‍👩‍👧',q:'Une la familia con su nombre en inglés',left:['Mamá','Papá','Hermana','Abuelo'],right:['Father','Grandfather','Mother','Sister'],pairs:{0:2,1:0,2:3,3:1},help:'Mamá=Mother, Papá=Father, Hermana=Sister, Abuelo=Grandfather.'},
+    {type:'choice',emoji:'🔢',q:'How do you say "ocho" in English?',options:['Six','Seven','Eight','Nine'],answer:'Eight',help:'six=6, seven=7, eight=8, nine=9.'},
+    {type:'choice',emoji:'🏠',q:'How do you say "casa" in English?',options:['Car','House','Tree','Door'],answer:'House',help:'House=casa, Car=auto, Tree=árbol, Door=puerta.'},
+    {type:'match',emoji:'🌤️',q:'Une el clima con su nombre en inglés',left:['Sol','Lluvia','Nieve','Viento'],right:['Snow','Wind','Sun','Rain'],pairs:{0:2,1:3,2:0,3:1},help:'Sol=Sun, Lluvia=Rain, Nieve=Snow, Viento=Wind.'},
+    {type:'choice',emoji:'🍎',q:'How do you say "manzana" in English?',options:['Banana','Orange','Apple','Grape'],answer:'Apple',help:'Apple=manzana, Banana=banana, Orange=naranja, Grape=uva.'},
+    {type:'match',emoji:'🎒',q:'Une las cosas de la escuela en inglés',left:['Libro','Lápiz','Goma','Tijera'],right:['Eraser','Scissors','Book','Pencil'],pairs:{0:2,1:3,2:0,3:1},help:'Libro=Book, Lápiz=Pencil, Goma=Eraser, Tijera=Scissors.'},
+    {type:'choice',emoji:'🎭',q:'How do you say "feliz" in English?',options:['Sad','Angry','Tired','Happy'],answer:'Happy',help:'Happy=feliz, Sad=triste, Angry=enojado, Tired=cansado.'},
+    {type:'match',emoji:'🍽️',q:'Une las comidas con su nombre en inglés',left:['Leche','Pan','Huevo','Queso'],right:['Egg','Cheese','Milk','Bread'],pairs:{0:2,1:3,2:0,3:1},help:'Leche=Milk, Pan=Bread, Huevo=Egg, Queso=Cheese.'},
+  ],
+  science: [
+    {type:'choice',emoji:'🌱',q:'¿Qué necesitan las plantas para vivir?',options:['Luz y agua','Solo tierra','Solo agua','Oscuridad'],answer:'Luz y agua',help:'Las plantas necesitan luz del sol, agua y minerales de la tierra para crecer.'},
+    {type:'choice',emoji:'❤️',q:'¿Qué órgano bombea la sangre?',options:['Pulmón','Riñón','Corazón','Cerebro'],answer:'Corazón',help:'El corazón es un músculo que bombea la sangre por todo el cuerpo.'},
+    {type:'choice',emoji:'🦁',q:'¿Cómo se llaman los animales que comen solo plantas?',options:['Carnívoros','Omnívoros','Herbívoros','Insectívoros'],answer:'Herbívoros',help:'Herbívoros=plantas, Carnívoros=carne, Omnívoros=de todo.'},
+    {type:'choice',emoji:'💧',q:'¿En qué se convierte el agua cuando se calienta?',options:['Hielo','Nieve','Vapor','Granizo'],answer:'Vapor',help:'El agua tiene 3 estados: sólido (hielo), líquido (agua) y gaseoso (vapor).'},
+    {type:'choice',emoji:'🌍',q:'¿Cuántos sentidos tiene el cuerpo humano?',options:['3','4','6','5'],answer:'5',help:'Vista, oído, olfato, gusto y tacto. ¡Son 5 sentidos!'},
+    {type:'choice',emoji:'🐸',q:'¿Cómo respiran los peces?',options:['Con pulmones','Con branquias','Con la piel','Por la boca'],answer:'Con branquias',help:'Los peces tienen branquias que filtran el oxígeno del agua.'},
+    {type:'choice',emoji:'🌙',q:'¿Cuánto tarda la Tierra en dar una vuelta al Sol?',options:['1 mes','1 semana','1 día','1 año'],answer:'1 año',help:'La Tierra da una vuelta al Sol en 365 días = 1 año.'},
+    {type:'choice',emoji:'🐛',q:'¿Cómo se llama el cambio de oruga a mariposa?',options:['Fotosíntesis','Metamorfosis','Germinación','Reproducción'],answer:'Metamorfosis',help:'Metamorfosis: huevo → oruga → crisálida → mariposa.'},
+    {type:'choice',emoji:'🦷',q:'¿Para qué sirven los dientes?',options:['Para oír','Para ver','Para masticar','Para respirar'],answer:'Para masticar',help:'Los dientes nos ayudan a masticar la comida para digerirla mejor.'},
+    {type:'choice',emoji:'🌿',q:'¿Qué parte de la planta absorbe el agua del suelo?',options:['Las hojas','Las flores','El tallo','Las raíces'],answer:'Las raíces',help:'Las raíces están bajo la tierra y absorben agua y minerales del suelo.'},
+  ]
+};
+
+let userName='',currentSubject='',currentExercises=[],currentIdx=0,correctCount=0;
+let scores={math:[],english:[],science:[]};
+let matchState={};
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function startApp(){const n=document.getElementById('name-input').value.trim();userName=n||'Amiga';document.getElementById('greeting-text').textContent='¡Hola, '+userName+'!';updateMenuStars();show('screen-menu');}
+document.getElementById('name-input').addEventListener('input',function(){document.getElementById('btn-start').style.opacity=this.value.trim()?'1':'0.6';});
+document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')startApp();});
+function updateMenuStars(){['math','english','science'].forEach(s=>{const el=document.getElementById('stars-'+s);const sc=scores[s];if(!sc.length){el.innerHTML='';return;}const last=sc[sc.length-1];const st=last>=9?3:last>=6?2:1;el.innerHTML=Array(st).fill('⭐').join('')+'<span style="font-size:12px;color:#999;margin-left:6px;">última vez</span>';});}
+function goMenu(){updateMenuStars();show('screen-menu');}
+function startSubject(subject){currentSubject=subject;currentExercises=shuffle([...DATA[subject]]);currentIdx=0;correctCount=0;const badges={math:'badge-math',english:'badge-english',science:'badge-science'};const labels={math:'🔢 Matemática',english:'🇬🇧 Inglés',science:'🌿 Cs. Naturales'};const fills={math:'fill-math',english:'fill-english',science:'fill-science'};const badge=document.getElementById('ex-badge');badge.className='ex-subject-badge '+badges[subject];badge.textContent=labels[subject];document.getElementById('progress-fill').className='progress-fill '+fills[subject];show('screen-exercise');renderExercise();}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+function renderExercise(){const ex=currentExercises[currentIdx];document.getElementById('ex-counter').textContent=(currentIdx+1)+'/'+currentExercises.length;document.getElementById('progress-fill').style.width=(currentIdx/currentExercises.length*100)+'%';document.getElementById('q-emoji').textContent=ex.emoji||'';document.getElementById('q-text').textContent=ex.q;document.getElementById('feedback-area').innerHTML='';document.getElementById('btn-area').innerHTML='<button class="btn-help" onclick="showHelp()">💡 ¡Ayuda!</button>';if(ex.type==='number')renderNumber();else if(ex.type==='choice')renderChoice(ex);else if(ex.type==='match')renderMatch(ex);}
+function renderNumber(){document.getElementById('answer-area').innerHTML='<div class="num-input-row"><input class="num-input" id="num-ans" type="number" inputmode="numeric" placeholder="?" /><button class="btn-check" onclick="checkNumber()">✓ Verificar</button></div>';setTimeout(()=>{const el=document.getElementById('num-ans');if(el)el.focus();},100);document.getElementById('num-ans').addEventListener('keydown',e=>{if(e.key==='Enter')checkNumber();});}
+function checkNumber(){const ex=currentExercises[currentIdx];const val=parseInt(document.getElementById('num-ans').value);if(isNaN(val))return;showFeedback(val===ex.answer);}
+function renderChoice(ex){const opts=shuffle([...ex.options]);document.getElementById('answer-area').innerHTML='<div class="options-grid">'+opts.map(o=>`<button class="option-btn" onclick="checkChoice(this,'${o}')">${o}</button>`).join('')+'</div>';}
+function checkChoice(btn,val){const ex=currentExercises[currentIdx];document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);if(val===ex.answer){btn.classList.add('correct');showFeedback(true);}else{btn.classList.add('wrong');document.querySelectorAll('.option-btn').forEach(b=>{if(b.textContent===ex.answer)b.classList.add('correct');});showFeedback(false);}}
+function renderMatch(ex){matchState={selected:null,selectedSide:null,matched:{},rightShuffled:shuffle([...ex.right]),pairs:ex.pairs,rightItems:ex.right,totalPairs:ex.left.length};const rs=matchState.rightShuffled;const h=ex.left.length;let html='<div class="match-container" id="match-wrap"><svg class="match-svg" id="match-svg" xmlns="http://www.w3.org/2000/svg" style="height:'+(h*66+20)+'px"></svg><div class="match-cols"><div class="match-col">'+ex.left.map((l,i)=>`<div class="match-item" id="left-${i}" onclick="selectMatch(${i},'left')">${l}</div>`).join('')+'</div><div class="match-col">'+rs.map((r,i)=>`<div class="match-item" id="right-${i}" onclick="selectMatch(${i},'right')">${r}</div>`).join('')+'</div></div></div>';document.getElementById('answer-area').innerHTML=html;}
+function selectMatch(idx,side){if(side==='left'&&matchState.matched['l'+idx])return;if(side==='right'&&matchState.matched['r'+idx])return;if(matchState.selected===null){matchState.selected=idx;matchState.selectedSide=side;document.getElementById((side==='left'?'left':'right')+'-'+idx).classList.add('selected');return;}if(matchState.selectedSide===side){document.querySelectorAll('.match-item').forEach(el=>el.classList.remove('selected'));matchState.selected=idx;matchState.selectedSide=side;document.getElementById((side==='left'?'left':'right')+'-'+idx).classList.add('selected');return;}let leftIdx=side==='right'?matchState.selected:idx;let rightIdx=side==='right'?idx:matchState.selected;const correctRightLabel=matchState.rightShuffled[rightIdx];const correctRight=matchState.rightItems[matchState.pairs[leftIdx]];document.querySelectorAll('.match-item').forEach(el=>el.classList.remove('selected'));if(correctRightLabel===correctRight){matchState.matched['l'+leftIdx]=true;matchState.matched['r'+rightIdx]=true;document.getElementById('left-'+leftIdx).classList.add('matched-correct');document.getElementById('right-'+rightIdx).classList.add('matched-correct');drawLine(leftIdx,rightIdx);if(Object.keys(matchState.matched).length===matchState.totalPairs*2)setTimeout(()=>showFeedback(true),400);}else{const lEl=document.getElementById('left-'+leftIdx);const rEl=document.getElementById('right-'+rightIdx);lEl.style.animation='shake 0.3s';rEl.style.animation='shake 0.3s';setTimeout(()=>{lEl.style.animation='';rEl.style.animation='';},300);}matchState.selected=null;matchState.selectedSide=null;}
+function drawLine(leftIdx,rightIdx){const svg=document.getElementById('match-svg');const wrap=document.getElementById('match-wrap');const lEl=document.getElementById('left-'+leftIdx);const rEl=document.getElementById('right-'+rightIdx);if(!svg||!lEl||!rEl)return;const wRect=wrap.getBoundingClientRect();const lRect=lEl.getBoundingClientRect();const rRect=rEl.getBoundingClientRect();const x1=lRect.right-wRect.left,y1=lRect.top+lRect.height/2-wRect.top;const x2=rRect.left-wRect.left,y2=rRect.top+rRect.height/2-wRect.top;const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',x1);line.setAttribute('y1',y1);line.setAttribute('x2',x2);line.setAttribute('y2',y2);line.setAttribute('stroke','#2EBD6B');line.setAttribute('stroke-width','3');line.setAttribute('stroke-linecap','round');svg.appendChild(line);}
+function showHelp(){const ex=currentExercises[currentIdx];document.getElementById('feedback-area').innerHTML='<div class="feedback-box feedback-help">💡 '+ex.help+'</div>';}
+function showFeedback(correct){if(correct)correctCount++;document.getElementById('feedback-area').innerHTML=correct?'<div class="feedback-box feedback-correct">✅ ¡Muy bien! ¡Correcto!</div>':'<div class="feedback-box feedback-wrong">❌ ¡Casi! La próxima lo tenés.</div>';const btnArea=document.getElementById('btn-area');btnArea.innerHTML='';const btn=document.createElement('button');btn.className='btn-next';btn.textContent=currentIdx<currentExercises.length-1?'Siguiente →':'¡Terminar! 🎉';btn.onclick=nextExercise;btnArea.appendChild(btn);}
+function nextExercise(){currentIdx++;if(currentIdx>=currentExercises.length){scores[currentSubject].push(correctCount);showCelebration();}else renderExercise();}
+function showCelebration(){const total=currentExercises.length,pct=correctCount/total;const stars=pct>=0.9?3:pct>=0.6?2:1;const emojis=['🎊','🏆','🌟'];const titles=['¡Muy bien!','¡Excelente!','¡Sos una campeona!'];const subs=['Seguí practicando, vas a mejorar','¡Estás aprendiendo muy bien!','¡Perfecto! No erraste casi nada'];document.getElementById('cel-emoji').textContent=emojis[stars-1];document.getElementById('cel-title').textContent=titles[stars-1];document.getElementById('cel-stars').textContent=Array(stars).fill('⭐').join('')+Array(3-stars).fill('☆').join('');document.getElementById('cel-score').textContent=correctCount+' de '+total+' respuestas correctas';document.getElementById('cel-sub').textContent=subs[stars-1]+', '+userName+'!';show('screen-celebration');}
+</script>
+</body>
+</html>
