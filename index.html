@@ -87,6 +87,13 @@ body { font-family: 'Nunito', sans-serif; background: #FFF9F0; }
 .btn-again { background: #D63384; color: white; border: none; border-radius: 28px; padding: 18px 40px; font-family: 'Nunito', sans-serif; font-size: 21px; font-weight: 900; cursor: pointer; margin: 8px auto; box-shadow: 0 5px 0 #9B2563; display: block; width: 100%; max-width: 320px; }
 .btn-menu-home { background: white; color: #D63384; border: 3px solid #D63384; border-radius: 28px; padding: 16px 36px; font-family: 'Nunito', sans-serif; font-size: 19px; font-weight: 900; cursor: pointer; margin: 8px auto; display: block; width: 100%; max-width: 320px; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+.btn-piz-toggle { background: white; border: 3px solid #D63384; border-radius: 22px; padding: 12px 28px; font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 900; color: #D63384; cursor: pointer; margin-top: 10px; width: 100%; max-width: 420px; }
+.piz-wrap { background: #2a2a40; border-radius: 20px; padding: 14px; width: 100%; max-width: 420px; margin-top: 10px; }
+.piz-toolbar { display: flex; gap: 8px; margin-bottom: 10px; }
+.piz-btn { background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25); border-radius: 14px; padding: 8px 0; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: white; cursor: pointer; flex: 1; }
+.piz-btn.active { background: rgba(255,255,255,0.3); border-color: white; }
+.piz-btn-clear { background: rgba(255,80,80,0.25); border-color: rgba(255,80,80,0.4); }
+#piz-canvas { width: 100%; border-radius: 12px; touch-action: none; display: block; cursor: crosshair; }
 </style>
 </head>
 <body>
@@ -146,6 +153,15 @@ body { font-family: 'Nunito', sans-serif; background: #FFF9F0; }
     <div id="answer-area"></div>
     <div id="feedback-area"></div>
     <div id="btn-area" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:420px;"></div>
+    <button id="pizarron-toggle-btn" class="btn-piz-toggle" style="display:none;" onclick="togglePizarron()">✏️ Pizarrón</button>
+    <div id="pizarron-wrap" class="piz-wrap" style="display:none;">
+      <div class="piz-toolbar">
+        <button class="piz-btn active" id="piz-pen-btn" onclick="setPizTool('pen')">✏️ Lápiz</button>
+        <button class="piz-btn" id="piz-eraser-btn" onclick="setPizTool('eraser')">🧹 Goma</button>
+        <button class="piz-btn piz-btn-clear" onclick="clearPiz()">🗑️ Limpiar</button>
+      </div>
+      <canvas id="piz-canvas"></canvas>
+    </div>
   </div>
 
   <div id="screen-celebration" class="screen celebration-bg">
@@ -220,7 +236,7 @@ document.getElementById('name-input').addEventListener('input',function(){docume
 document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')startApp();});
 function updateMenuStars(){['math','english','science'].forEach(s=>{const el=document.getElementById('stars-'+s);const sc=scores[s];if(!sc.length){el.innerHTML='';return;}const last=sc[sc.length-1];const best=Math.max(...sc.map(x=>x.score));const pct=last.score/last.total;const st=pct>=0.9?3:pct>=0.6?2:1;el.innerHTML=Array(st).fill('⭐').join('')+'<span style="font-size:12px;color:#999;margin-left:6px;">Mejor: '+best+'/'+last.total+'</span>';});}
 function goMenu(){updateMenuStars();show('screen-menu');}
-function startSubject(subject){currentSubject=subject;currentExercises=shuffle([...DATA[subject]]);currentIdx=0;correctCount=0;const badges={math:'badge-math',english:'badge-english',science:'badge-science'};const labels={math:'🔢 Matemática',english:'🇬🇧 Inglés',science:'🌿 Cs. Naturales'};const fills={math:'fill-math',english:'fill-english',science:'fill-science'};const badge=document.getElementById('ex-badge');badge.className='ex-subject-badge '+badges[subject];badge.textContent=labels[subject];document.getElementById('progress-fill').className='progress-fill '+fills[subject];show('screen-exercise');renderExercise();}
+function startSubject(subject){currentSubject=subject;currentExercises=shuffle([...DATA[subject]]);currentIdx=0;correctCount=0;const badges={math:'badge-math',english:'badge-english',science:'badge-science'};const labels={math:'🔢 Matemática',english:'🇬🇧 Inglés',science:'🌿 Cs. Naturales'};const fills={math:'fill-math',english:'fill-english',science:'fill-science'};const badge=document.getElementById('ex-badge');badge.className='ex-subject-badge '+badges[subject];badge.textContent=labels[subject];document.getElementById('progress-fill').className='progress-fill '+fills[subject];const pizBtn=document.getElementById('pizarron-toggle-btn');const pizWrap=document.getElementById('pizarron-wrap');pizBtn.style.display=subject==='math'?'block':'none';pizWrap.style.display='none';pizBtn.textContent='✏️ Pizarrón';clearPiz();show('screen-exercise');renderExercise();}
 function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
 function renderExercise(){const ex=currentExercises[currentIdx];document.getElementById('ex-counter').textContent=(currentIdx+1)+'/'+currentExercises.length;document.getElementById('progress-fill').style.width=(currentIdx/currentExercises.length*100)+'%';document.getElementById('q-emoji').textContent=ex.emoji||'';document.getElementById('q-text').textContent=ex.q;document.getElementById('feedback-area').innerHTML='';document.getElementById('btn-area').innerHTML='<button class="btn-help" onclick="showHelp()">💡 ¡Ayuda!</button>';if(ex.type==='number')renderNumber();else if(ex.type==='choice')renderChoice(ex);else if(ex.type==='match')renderMatch(ex);}
 function renderNumber(){document.getElementById('answer-area').innerHTML='<div class="num-input-row"><input class="num-input" id="num-ans" type="number" inputmode="numeric" placeholder="?" /><button class="btn-check" onclick="checkNumber()">✓ Verificar</button></div>';setTimeout(()=>{const el=document.getElementById('num-ans');if(el)el.focus();},100);document.getElementById('num-ans').addEventListener('keydown',e=>{if(e.key==='Enter')checkNumber();});}
@@ -234,6 +250,44 @@ function showHelp(){const ex=currentExercises[currentIdx];document.getElementByI
 function showFeedback(correct){if(correct)correctCount++;document.getElementById('feedback-area').innerHTML=correct?'<div class="feedback-box feedback-correct">✅ ¡Muy bien! ¡Correcto!</div>':'<div class="feedback-box feedback-wrong">❌ ¡Casi! La próxima lo tenés.</div>';const btnArea=document.getElementById('btn-area');btnArea.innerHTML='';const btn=document.createElement('button');btn.className='btn-next';btn.textContent=currentIdx<currentExercises.length-1?'Siguiente →':'¡Terminar! 🎉';btn.onclick=nextExercise;btnArea.appendChild(btn);}
 function nextExercise(){currentIdx++;if(currentIdx>=currentExercises.length){const today=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});scores[currentSubject].push({score:correctCount,total:currentExercises.length,date:today});saveData();showCelebration();}else renderExercise();}
 function showCelebration(){const total=currentExercises.length,pct=correctCount/total;const stars=pct>=0.9?3:pct>=0.6?2:1;const emojis=['🎊','🏆','🌟'];const titles=['¡Muy bien!','¡Excelente!','¡Sos una campeona!'];const subs=['Seguí practicando, vas a mejorar','¡Estás aprendiendo muy bien!','¡Perfecto! No erraste casi nada'];document.getElementById('cel-emoji').textContent=emojis[stars-1];document.getElementById('cel-title').textContent=titles[stars-1];document.getElementById('cel-stars').textContent=Array(stars).fill('⭐').join('')+Array(3-stars).fill('☆').join('');document.getElementById('cel-score').textContent=correctCount+' de '+total+' respuestas correctas';document.getElementById('cel-sub').textContent=subs[stars-1]+', '+userName+'!';const history=scores[currentSubject];const histEl=document.getElementById('cel-history');if(history.length>1){const last5=history.slice(-5).reverse();histEl.innerHTML='<div style="margin:16px auto 0;max-width:300px;background:white;border-radius:16px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);"><div style="font-weight:900;font-size:14px;color:#555;margin-bottom:8px;">📊 Tu historial</div>'+last5.map(h=>{const p=h.score/h.total;const s=p>=0.9?'⭐⭐⭐':p>=0.6?'⭐⭐':'⭐';return'<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F0F0F0;font-size:14px;"><span style="color:#999">'+h.date+'</span><span style="font-weight:700;color:#333">'+h.score+'/'+h.total+'</span><span>'+s+'</span></div>';}).join('')+'</div>';}else{histEl.innerHTML='';}show('screen-celebration');}
+
+let pizTool='pen',pizDrawing=false,pizCtx=null;
+
+function initPizarron(){
+  const canvas=document.getElementById('piz-canvas');
+  const dpr=window.devicePixelRatio||1;
+  const w=Math.min(420,window.innerWidth-68);
+  const h=180;
+  canvas.width=w*dpr;canvas.height=h*dpr;
+  canvas.style.width=w+'px';canvas.style.height=h+'px';
+  pizCtx=canvas.getContext('2d');
+  pizCtx.scale(dpr,dpr);
+  pizCtx.strokeStyle='#FFFFFF';pizCtx.lineWidth=3;pizCtx.lineCap='round';pizCtx.lineJoin='round';
+  canvas.addEventListener('mousedown',pizDown);canvas.addEventListener('mousemove',pizMove);canvas.addEventListener('mouseup',pizUp);canvas.addEventListener('mouseleave',pizUp);
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();pizDown(e.touches[0]);},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();pizMove(e.touches[0]);},{passive:false});
+  canvas.addEventListener('touchend',pizUp);
+}
+function pizPos(e){const r=document.getElementById('piz-canvas').getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+function pizDown(e){pizDrawing=true;const{x,y}=pizPos(e);pizCtx.beginPath();pizCtx.moveTo(x,y);}
+function pizMove(e){if(!pizDrawing)return;const{x,y}=pizPos(e);pizCtx.lineTo(x,y);pizCtx.stroke();}
+function pizUp(){pizDrawing=false;pizCtx.beginPath();}
+function setPizTool(tool){
+  pizTool=tool;
+  if(tool==='pen'){pizCtx.globalCompositeOperation='source-over';pizCtx.strokeStyle='#FFFFFF';pizCtx.lineWidth=3;}
+  else{pizCtx.globalCompositeOperation='destination-out';pizCtx.lineWidth=22;}
+  document.getElementById('piz-pen-btn').classList.toggle('active',tool==='pen');
+  document.getElementById('piz-eraser-btn').classList.toggle('active',tool==='eraser');
+}
+function clearPiz(){if(pizCtx){const c=document.getElementById('piz-canvas');pizCtx.clearRect(0,0,c.width,c.height);}}
+function togglePizarron(){
+  const wrap=document.getElementById('pizarron-wrap');
+  const btn=document.getElementById('pizarron-toggle-btn');
+  const open=wrap.style.display==='none';
+  wrap.style.display=open?'block':'none';
+  btn.textContent=open?'✏️ Cerrar pizarrón':'✏️ Pizarrón';
+  if(open&&!pizCtx)initPizarron();
+}
 
 loadData();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
